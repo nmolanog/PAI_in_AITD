@@ -30,6 +30,7 @@ for (i in colnames(z0)) {
 z0[z0[,i] ==-1,i]  <- NA
 }
 
+###depurations
 z0[z0$female_n %in% "8,89:1", "aitd_cases_n"]
 
 z0$region[z0$region %in% " asia"]<-"asia"
@@ -45,6 +46,46 @@ for(i in c("female_n","male_n","age_mean","age_sd")){
 }
 
 z0%>%map(unique)
+
+###verify choix
+tempcn<-data.frame(colnames(z0),choix$var,stringsAsFactors =F)
+tempcn%>%filter(colnames.z0.!=choix.var)
+choix$var%>%table()->a
+a[a>1]
+
+##fix colnames
+colnames(z0)%>%str_replace_all("-|/","_")->colnames(z0)
+choix$var<-colnames(z0)
+
+
+###check for proportions denom> n
+choix%>%filter(!type %in% "p" & !is.na(denom))%>%select(var)%>%unlist()->var_to_res
+var_to_res%>%str_subset("age")->age_vars
+var_to_res<-setdiff(var_to_res,age_vars)
+
+list_issues<-list()
+for(i in var_to_res){
+  denom<-choix[choix$var %in% i,"denom"]
+  z0%>%select(c("study",i,denom))%>%na.omit()->temp
+  if(any(temp[,denom]<temp[,i])){
+    list_issues[[i]]<-temp[temp[,denom]<temp[,i],]
+  }
+}
+
+#list_issues
+
+###fix bad prop.
+#z0%>%filter(study %in% "sari2009")
+z0[z0$study %in% "sari2009", "hashipolya_n"]<-5
+z0[z0$study %in% "demartino2014", c("ra_n","ps_n")]<-NA
+z0[z0$study %in% "taktonidou2004", c("serpolya_n")]<-58
+
+###take out constant vars
+z0%>%{map_dbl(.,~num.clas(.x))}->numcls
+numcls%>%.[. %in% c("0") | is.na(.)]%>%names->constant_vars
+
+z0%>%select(-constant_vars)->z0
+choix[!choix$var %in% constant_vars,]->choix
 
 setwd("../data/Rdata")
 
