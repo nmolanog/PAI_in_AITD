@@ -12,7 +12,7 @@ oldir<-getwd()
 
 list.files("../data/Rdata")%>%str_subset(".RData")
 
-load("../data/Rdata/DEP_data.RData")
+load("../data/Rdata/merged_data.RData")
 
 choix%>%filter(!type %in% "p" & !is.na(denom))%>%select(var)%>%unlist()->var_to_res
 var_to_res%>%str_subset("age")->age_vars
@@ -50,7 +50,7 @@ if(!"./outputs" %in% list.dirs()){
 }
 setwd("./outputs")
 
-write.csv2(res_df,"descriptive.csv",row.names =F)
-write.csv2(res_age,"descriptive_age.csv",row.names =F)
+write.csv2(res_df,"descriptive_v2.csv",row.names =F)
+write.csv2(res_age,"descriptive_age_v2.csv",row.names =F)
 
 setwd(oldir)
